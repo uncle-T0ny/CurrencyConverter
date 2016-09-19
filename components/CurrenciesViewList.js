@@ -11,33 +11,44 @@ import {
 
 class CurrenciesViewList extends Component {
 
+  calculate(currencyName) {
+  	let chosenCurrency = this.props.currency;
+  	if (currencyName == CURRENCY.UAH) {
+  		return roundNumber(this.props.getUAHMultiplier(chosenCurrency) * this.props.typedSum);
+  	} else {
+  		if (chosenCurrency == CURRENCY.UAH) {
+  			return roundNumber(this.props.typedSum / this.props.getUAHMultiplier(currencyName));
+  		} else {
+				return roundNumber(this.props.getUAHMultiplier(chosenCurrency) * this.props.typedSum / this.props.getUAHMultiplier(currencyName));
+  		}
+  	}
+  }
+
+  getListItem(currencyName) {
+  	return	<Text key={currencyName}
+											style={styles.currencyOut}>
+
+							{this.calculate(currencyName)}
+							<Text style={styles.currencyName}>  {currencyName}</Text>
+
+						</Text>;
+  }
+
   render() {
     return (
-      <View style={styles.currenciesBlock} >
+      <View>
 				{
 						this.props.currencies.map((pair) => {
 
 								if (this.props.currency == pair.ccy) {
 									return null;
 								} else if (pair.ccy == CURRENCY.UAH) {
-									return 	<Text key={pair.ccy}
-																style={styles.currencyOut}>
-															{roundNumber(this.props.getUAHMultiplier(this.props.currency) * this.props.typedSum)}
-															<Text style={styles.currencyName}>  {pair.ccy}</Text>
-													</Text>;
+									return this.getListItem(pair.ccy);
 								} else {
 									if (this.props.currency == CURRENCY.UAH) {
-										return	<Text key={pair.ccy}
-																	style={styles.currencyOut}>
-															{roundNumber(this.props.typedSum / this.props.getUAHMultiplier(pair.ccy))}
-															<Text style={styles.currencyName}>  {pair.ccy}</Text>
-														</Text>
+										return this.getListItem(pair.ccy);
 									} else {
-										return  <Text key={pair.ccy}
-																	style={styles.currencyOut}>
-															{roundNumber(this.props.getUAHMultiplier(this.props.currency) * this.props.typedSum / this.props.getUAHMultiplier(pair.ccy))}
-															<Text style={styles.currencyName}>  {pair.ccy}</Text>
-														</Text>;
+										return this.getListItem(pair.ccy);
 									}
 								}
 

@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import CurrencyInput from './components/CurrencyInput';
+import CurrencyPicker from './components/CurrencyPicker';
 import CurrenciesViewList from './components/CurrenciesViewList';
 import styles from './styles.js';
 import CURRENCY from "./constants"
@@ -14,9 +15,6 @@ import {
   Image,
 } from 'react-native';
 
-
-const DATA_URL = 'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5';
-
 class AwesomeProject extends Component {
 
   constructor(props) {
@@ -25,12 +23,7 @@ class AwesomeProject extends Component {
       currencies: [],
       currency: CURRENCY.EUR,
       typedSum: 0,
-      uahMultiplier: {
-        UAH: 1,
-        USD: 1,
-        EUR: 1,
-        RUR: 1
-      },
+      uahMultiplier: {},
       currenciesLoaded: false
     };
 
@@ -39,23 +32,21 @@ class AwesomeProject extends Component {
 
   componentWillMount() {
 
-		console.log("getCurrencies");
-
 		getCurrencies((currencies) => {
-		  console.log("currencies");
-		  console.log(currencies);
-			let newCurrencies = [];
-			let newUahMultiplier = {};
-			currencies.forEach((pair) => {
-				if (pair.ccy != CURRENCY.BTC) {
-					newCurrencies.push(pair);
-					newUahMultiplier[pair.ccy] = pair.sale;
+
+			let uahMultiplier = {};
+			uahMultiplier[CURRENCY.UAH] = 1;
+
+			currencies = currencies.filter((pair, idx) => {
+				if (pair.ccy == CURRENCY.BTC) {
+					return;
+				} else {
+					uahMultiplier[pair.ccy] = pair.sale;
+					return pair;
 				}
 			});
 
-			newUahMultiplier[CURRENCY.UAH] = 1;
-
-			newCurrencies.push({
+			currencies.push({
 				ccy: CURRENCY.UAH,
 				base_ccy: CURRENCY.UAH,
 				buy: 1,
@@ -63,12 +54,10 @@ class AwesomeProject extends Component {
 			});
 
 			this.setState({
-				currencies: newCurrencies,
-				uahMultiplier: newUahMultiplier,
+				currencies: currencies,
+				uahMultiplier: uahMultiplier,
 				currenciesLoaded: true
 			});
-
-			this.onCurrencyPickerValChange(CURRENCY.EUR, CURRENCY.EUR);
 		});
   }
 
@@ -80,12 +69,6 @@ class AwesomeProject extends Component {
     }
   }
 
-  onCurrencyPickerValChange = (key: string, value: string) => {
-		const newState = {};
-		newState[key] = value;
-		this.setState(newState);
-  };
-
   render() {
     return (
       <View style={[styles.container, styles.outerView]}>
@@ -95,16 +78,25 @@ class AwesomeProject extends Component {
 				</Text>
 
         { this.state.currenciesLoaded? // have we loaded currencies?
-        	<View style={[styles.container, {flexDirection: 'row'}]}>
-						<CurrencyInput currency={this.state.currency}
-													 onCurrencyPickerValChange={this.onCurrencyPickerValChange}
-													 onTypedSumChange={(typedSum) => this.setState({typedSum})}
-													 currencies={this.state.currencies} />
+        	<View style={[styles.container, styles.flexDirectionRow]}>
+        		<View style={[styles.block, styles.blockSeparator]}>
 
-						<CurrenciesViewList currencies={this.state.currencies}
-																currency={this.state.currency}
-																getUAHMultiplier={this.getUAHMultiplier}
-																typedSum={this.state.typedSum}/>
+							<CurrencyInput	currency={this.state.currency}
+															onTypedSumChange={(typedSum) => this.setState({typedSum})}
+														 	currencies={this.state.currencies} />
+
+							<CurrencyPicker	onPickerValChange={(newCurrency) => this.setState({'currency': newCurrency})}
+															currencies={this.state.currencies}/>
+
+        		</View>
+
+						<View  style={styles.block}>
+							<CurrenciesViewList currencies={this.state.currencies}
+																	currency={this.state.currency}
+																	getUAHMultiplier={this.getUAHMultiplier}
+																	typedSum={this.state.typedSum}/>
+						</View>
+
            </View>
 
             : <Text style={[styles.container, {fontSize: 20}]} > LOADING ... </Text>

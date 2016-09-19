@@ -11,6 +11,9 @@ var styles = StyleSheet.create({
    justifyContent: 'center',
    alignItems: 'center',
   },
+  flexDirectionRow: {
+  	flexDirection: 'row'
+  },
   outerView: {
   	backgroundColor: 'rgba(242, 237, 216, 0.8)'
   },
@@ -33,7 +36,7 @@ var styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'Roboto'
   },
-  currenciesBlock: {
+  block: {
     width: 260,
     height: 200,
     paddingLeft: 10
@@ -44,7 +47,7 @@ var styles = StyleSheet.create({
   currencyName: {
    color: '#44B3C2'
   },
-  blockRightBorder: {
+  blockSeparator: {
   	width: 140,
   	borderRightColor: '#5D4C46',
  		borderRightWidth: 1,
