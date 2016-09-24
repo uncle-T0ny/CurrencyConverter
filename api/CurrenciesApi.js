@@ -1,8 +1,7 @@
-
-const DATA_URL = 'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5';
+import {URLS} from "./../constants"
 
 export function getCurrencies(callback) {
-	fetch(DATA_URL, {method: "GET"})
+	fetch(URLS.GET_CURRENCIES, {method: "GET"})
 		.then(response => response.json())
 		.then((json) => {
 			return callback(json);

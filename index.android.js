@@ -1,11 +1,10 @@
 
 import React, { Component } from 'react';
+import ConverterStore from './stores/ConverterStore';
 import CurrencyInput from './components/CurrencyInput';
 import CurrencyPicker from './components/CurrencyPicker';
 import CurrenciesViewList from './components/CurrenciesViewList';
 import styles from './styles.js';
-import CURRENCY from "./constants"
-import {getCurrencies} from "./api/CurrenciesApi";
 
 import {
   AppRegistry,
@@ -19,47 +18,34 @@ class AwesomeProject extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      currencies: [],
-      currency: CURRENCY.EUR,
-      typedSum: 0,
-      uahMultiplier: {},
-      currenciesLoaded: false
-    };
 
-    this.getUAHMultiplier = this.getUAHMultiplier.bind(this);
+		this.state = this.getConverterState();
+
+		this._onChange = this._onChange.bind(this);
+		this.getUAHMultiplier = this.getUAHMultiplier.bind(this);
   }
 
-  componentWillMount() {
+	componentDidMount() {
+		ConverterStore.addChangeListener(this._onChange);
+	}
 
-		getCurrencies((currencies) => {
+	componentWillUnmount() {
+		ConverterStore.removeChangeListener(this._onChange);
+	}
 
-			let uahMultiplier = {};
-			uahMultiplier[CURRENCY.UAH] = 1;
+	_onChange() {
+		this.setState(this.getConverterState());
+	}
 
-			currencies = currencies.filter((pair, idx) => {
-				if (pair.ccy == CURRENCY.BTC) {
-					return;
-				} else {
-					uahMultiplier[pair.ccy] = pair.sale;
-					return pair;
-				}
-			});
-
-			currencies.push({
-				ccy: CURRENCY.UAH,
-				base_ccy: CURRENCY.UAH,
-				buy: 1,
-				sale: 1
-			});
-
-			this.setState({
-				currencies: currencies,
-				uahMultiplier: uahMultiplier,
-				currenciesLoaded: true
-			});
-		});
-  }
+	getConverterState() {
+		return {
+			currencies: ConverterStore.getCurrencies(),
+			currency: ConverterStore.getEnteredCurrency(),
+			typedSum: ConverterStore.getEnteredValue(),
+			uahMultiplier: ConverterStore.getUAHMultiplier(),
+			currenciesLoaded: ConverterStore.isCurrenciesLoaded()
+		};
+	}
 
   getUAHMultiplier(currency) {
     if (this.state.uahMultiplier) {
@@ -82,11 +68,10 @@ class AwesomeProject extends Component {
         		<View style={[styles.block, styles.blockSeparator]}>
 
 							<CurrencyInput	currency={this.state.currency}
-															onTypedSumChange={(typedSum) => this.setState({typedSum})}
 														 	currencies={this.state.currencies} />
 
-							<CurrencyPicker	onPickerValChange={(newCurrency) => this.setState({'currency': newCurrency})}
-															currencies={this.state.currencies}/>
+							<CurrencyPicker	currencies={this.state.currencies}
+															 currency={this.state.currency}/>
 
         		</View>
 

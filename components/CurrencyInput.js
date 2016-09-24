@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import styles from './../styles.js';
+import ConverterActions from "./../actions/ConverterActions";
 
 import {
   View,
@@ -8,6 +9,11 @@ import {
   } from 'react-native';
 
 class CurrencyInput extends Component {
+
+	onChange(newValue) {
+		ConverterActions.updateEnteredValue(newValue);
+	}
+
   render() {
     return (
       <View>
@@ -16,7 +22,7 @@ class CurrencyInput extends Component {
 										placeholder={'0.00'}
 										editable={true}
 										maxLength={12}
-										onChangeText={this.props.onTypedSumChange}
+										onChangeText={this.onChange}
 				/>
       </View>
     );

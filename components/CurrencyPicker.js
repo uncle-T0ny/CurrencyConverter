@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import styles from './../styles.js';
+import ConverterActions from "./../actions/ConverterActions";
 
 import {
   View,
@@ -11,12 +12,16 @@ const Item = Picker.Item;
 
 class CurrencyPicker extends Component {
 
+	onPickerChangeValue(newCurrency) {
+		ConverterActions.updateEnteredCCY(newCurrency);
+	}
+
   render() {
     return (
       <View>
 				<Picker style={styles.picker}
 								selectedValue={this.props.currency}
-								onValueChange={this.props.onPickerValChange}
+								onValueChange={this.onPickerChangeValue}
 								mode="dropdown">
 
 						{
